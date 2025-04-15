@@ -6,3 +6,10 @@ router.post('/register', register);
 router.post('/login', login);
 
 module.exports = router;
+const authRouter = express.Router();
+const { loginUser, forgetPassword } = require('../controllers/authController');
+
+authRouter.post('/login', loginUser);
+authRouter.put('/forgetPassword', forgetPassword);
+
+module.exports = authRouter;
