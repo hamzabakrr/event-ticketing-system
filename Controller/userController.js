@@ -1,6 +1,10 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Booking = require('../models/Booking');
+const Booking = require('../models/Booking');
+const Event = require('../models/Event');
+
 
 exports.register = async (req, res) => {
   try {
@@ -156,3 +160,44 @@ const deleteUser = async (req, res) => {
     }
   };
 exports.deleteUser = deleteUser;
+
+const getUserBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ user: req.user.id }).populate('event');
+    res.status(200).json({ success: true, bookings });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+const getOrganizerEvents = async (req, res) => {
+  try {
+    const events = await Event.find({ organizer: req.user.id });
+    res.status(200).json({ success: true, events });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+
+
+const getEventsAnalytics = async (req, res) => {
+  try {
+    const events = await Event.find({ organizer: req.user.id });
+
+    const analytics = await Promise.all(events.map(async (event) => {
+      const totalTickets = event.totalTickets;
+      const bookings = await Booking.find({ event: event._id });
+      const ticketsSold = bookings.reduce((sum, b) => sum + b.tickets, 0);
+
+      return {
+        eventTitle: event.title,
+        percentBooked: ((ticketsSold / totalTickets) * 100).toFixed(2)
+      };
+    }));
+
+    res.status(200).json({ success: true, analytics });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
