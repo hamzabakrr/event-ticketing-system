@@ -46,3 +46,17 @@ const getAllEvents = async (req, res) => {
 };
 
 module.exports = { createEvent, getAllEvents };
+
+// controllers/bookingController.js
+exports.createBooking = async (req, res) => {
+    try {
+        const { eventId, userId, numTickets } = req.body;
+
+        // Logic to check availability, reduce ticket count, and save booking
+        const booking = await Booking.create({ eventId, userId, numTickets });
+
+        res.status(201).json({ status: 'success', data: booking });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+};
