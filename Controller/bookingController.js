@@ -69,3 +69,30 @@ const getBookingById = async (req, res) => {
 };
 
 module.exports = { bookTickets, cancelBooking, getBookingById };
+
+exports.getBookingById = async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        res.json({ status: 'success', data: booking });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+};
+exports.deleteBooking = async (req, res) => {
+    try {
+        const booking = await Booking.findByIdAndDelete(req.params.id);
+
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        res.json({ status: 'success', message: 'Booking cancelled' });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+};
