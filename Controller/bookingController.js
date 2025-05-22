@@ -96,3 +96,126 @@ exports.deleteBooking = async (req, res) => {
         res.status(500).json({ status: 'error', message: err.message });
     }
 };
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const BookTicketForm = ({ eventId, ticketPrice, maxAvailable }) => {
+    const [quantity, setQuantity] = useState(1);
+    const [totalPrice, setTotalPrice] = useState(ticketPrice);
+    const [message, setMessage] = useState('');
+
+    useEffect(() => {
+        setTotalPrice(quantity * ticketPrice);
+    }, [quantity, ticketPrice]);
+
+    const handleBooking = async () => {
+        if (quantity > maxAvailable) {
+            setMessage('Not enough tickets available.');
+            return;
+        }
+
+        try {
+            const response = await axios.post('/api/bookings', {
+                eventId,
+                quantity,
+            });
+
+            setMessage('Booking successful!');
+        } catch (error) {
+            setMessage('Booking failed: ' + error.response?.data?.message || error.message);
+        }
+    };
+
+    return (
+        <div>
+            <h2>Book Tickets</h2>
+            <label>Quantity: </label>
+            <input
+                type="number"
+                value={quantity}
+                min={1}
+                max={maxAvailable}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+            />
+            <p>Total Price: ${totalPrice}</p>
+            <button onClick={handleBooking}>Book</button>
+            {message && <p>{message}</p>}
+        </div>
+    );
+};
+
+export default BookTicketForm;
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const UserBookingsPage = () => {
+    const [bookings, setBookings] = useState([]);
+
+    const fetchBookings = async () => {
+        const res = await axios.get('/api/bookings');
+        setBookings(res.data);
+    };
+
+    const cancelBooking = async (id) => {
+        await axios.delete(`/api/bookings/${id}`);
+        fetchBookings(); // Refresh
+    };
+
+    useEffect(() => {
+        fetchBookings();
+    }, []);
+
+    return (
+        <div>
+            <h2>Your Bookings</h2>
+            {bookings.length === 0 ? (
+                <p>No bookings yet.</p>
+            ) : (
+                <ul>
+                    {bookings.map((booking) => (
+                        <li key={booking.id}>
+                            <strong>{booking.eventName}</strong><br />
+                            Quantity: {booking.quantity}<br />
+                            Total Price: ${booking.price}<br />
+                            <button onClick={() => cancelBooking(booking.id)}>Cancel</button>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+};
+
+export default UserBookingsPage;
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const BookingDetails = ({ bookingId, onClose }) => {
+    const [details, setDetails] = useState(null);
+
+    useEffect(() => {
+        const fetchDetails = async () => {
+            const res = await axios.get(`/api/bookings/${bookingId}`);
+            setDetails(res.data);
+        };
+
+        fetchDetails();
+    }, [bookingId]);
+
+    if (!details) return <p>Loading...</p>;
+
+    return (
+        <div className="modal">
+            <h3>Booking Details</h3>
+            <p>Event: {details.eventName}</p>
+            <p>Quantity: {details.quantity}</p>
+            <p>Total Price: ${details.price}</p>
+            <p>Booking Date: {new Date(details.createdAt).toLocaleString()}</p>
+            <button onClick={onClose}>Close</button>
+        </div>
+    );
+};
+
+export default BookingDetails;
+
