@@ -1,10 +1,6 @@
 {
   "ExpandedNodes": [
-    "",
-    "\\Controller",
-    "\\middleware",
-    "\\routes"
+    ""
   ],
-  "SelectedNode": "\\Controller\\bookingController.js",
   "PreviewInSolutionExplorer": false
 }
