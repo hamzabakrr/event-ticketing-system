@@ -1,26 +1,60 @@
-// src/components/profile/ProfilePage.jsx
-import React, { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { TextField, Button, Box, Typography } from '@mui/material';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import useAuth from '../../context/AuthContext';
 
 const ProfilePage = () => {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
+  const [profile, setProfile] = useState({
+    name: '',
+    email: '',
+    profilePicture: ''
+  });
 
   useEffect(() => {
-    axios.get('/api/users/me')
-      .then(response => setUser(response.data))
-      .catch(error => console.error(error));
-  }, []);
+    if (user) {
+      setProfile({
+        name: user.name,
+        email: user.email,
+        profilePicture: user.profilePicture || ''
+      });
+    }
+  }, [user]);
 
-  if (!user) return <p>Loading...</p>;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put('/api/users/profile', profile);
+      toast.success('Profile updated successfully');
+    } catch (err) {
+      toast.error('Failed to update profile');
+    }
+  };
 
   return (
-    <div>
-      <h2>Profile</h2>
-      <p><strong>Name:</strong> {user.name}</p>
-      <p><strong>Email:</strong> {user.email}</p>
-      <p><strong>Role:</strong> {user.role}</p>
-    </div>
+    <Box component="form" onSubmit={handleSubmit}>
+      <Typography variant="h5">My Profile</Typography>
+      <TextField
+        label="Name"
+        value={profile.name}
+        onChange={(e) => setProfile({...profile, name: e.target.value})}
+        fullWidth
+        margin="normal"
+        required
+      />
+      <TextField
+        label="Email"
+        type="email"
+        value={profile.email}
+        onChange={(e) => setProfile({...profile, email: e.target.value})}
+        fullWidth
+        margin="normal"
+        required
+      />
+      <Button type="submit" variant="contained">
+        Update Profile
+      </Button>
+    </Box>
   );
 };
-
-export default ProfilePage;
