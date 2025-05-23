@@ -98,6 +98,8 @@
     "qs": "^6.14.0",
     "range-parser": "^1.2.1",
     "raw-body": "^3.0.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "readdirp": "^3.6.0",
     "router": "^2.2.0",
     "safe-buffer": "^5.2.1",
@@ -128,12 +130,35 @@
     "wrappy": "^1.0.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "react-scripts": "^5.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hamzabakrr/event-ticketing-system.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hamzabakrr/event-ticketing-system/issues"
+  },
+  "homepage": "https://github.com/hamzabakrr/event-ticketing-system#readme",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
