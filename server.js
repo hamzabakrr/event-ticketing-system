@@ -2,7 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+<<<<<<< HEAD
 const cookieParser = require('cookie-parser');
+=======
+>>>>>>> origin/main
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');
@@ -18,6 +21,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
+<<<<<<< HEAD
   origin: ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -26,6 +30,14 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+=======
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.use(express.json());
+>>>>>>> origin/main
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/event-ticketing', {
@@ -46,6 +58,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+<<<<<<< HEAD
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ 
@@ -60,6 +73,13 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ 
     message: err.message || 'Something went wrong!',
     status: err.status || 500,
+=======
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    message: err.message || 'Something went wrong!',
+>>>>>>> origin/main
     stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
 });

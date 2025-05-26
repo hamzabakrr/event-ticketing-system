@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
+<<<<<<< HEAD
     lowercase: true,
     validate: {
       validator: function(v) {
@@ -19,6 +20,9 @@ const userSchema = new mongoose.Schema({
       },
       message: props => `${props.value} is not a valid email address!`
     }
+=======
+    lowercase: true
+>>>>>>> origin/main
   },
   password: {
     type: String,
@@ -78,12 +82,15 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
+<<<<<<< HEAD
 // Create case-insensitive unique index for email
 userSchema.index({ email: 1 }, { 
   unique: true, 
   collation: { locale: 'en', strength: 2 }
 });
 
+=======
+>>>>>>> origin/main
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();

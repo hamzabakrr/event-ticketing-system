@@ -11,6 +11,7 @@ const bookingSchema = new mongoose.Schema({
     ref: 'Event',
     required: true
   },
+<<<<<<< HEAD
   tickets: [{
     ticketType: {
       type: mongoose.Schema.Types.ObjectId,
@@ -29,10 +30,23 @@ const bookingSchema = new mongoose.Schema({
     }
   }],
   totalAmount: {
+=======
+  ticketType: {
+    type: String,
+    required: true
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 1
+  },
+  totalPrice: {
+>>>>>>> origin/main
     type: Number,
     required: true,
     min: 0
   },
+<<<<<<< HEAD
   paymentMethod: {
     type: String,
     enum: ['credit_card', 'fawry', 'vodafone_cash'],
@@ -54,11 +68,14 @@ const bookingSchema = new mongoose.Schema({
       match: [/^(\+20|0)?1[0125][0-9]{8}$/, 'Please provide a valid Egyptian phone number']
     }
   },
+=======
+>>>>>>> origin/main
   status: {
     type: String,
     enum: ['pending', 'confirmed', 'cancelled'],
     default: 'pending'
   },
+<<<<<<< HEAD
   createdAt: {
     type: Date,
     default: Date.now
@@ -81,5 +98,41 @@ bookingSchema.pre('save', function(next) {
   }
   next();
 });
+=======
+  paymentMethod: {
+    type: String,
+    enum: ['credit_card', 'fawry', 'vodafone_cash'],
+    required: true,
+    default: 'credit_card'
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'completed', 'failed'],
+    default: 'pending'
+  },
+  contactInfo: {
+    name: String,
+    email: String,
+    phone: {
+      type: String,
+      validate: {
+        validator: function(v) {
+          return /^(\+20|0)?1[0125][0-9]{8}$/.test(v);
+        },
+        message: props => `${props.value} is not a valid Egyptian phone number!`
+      },
+      required: true
+    }
+  },
+  ticketIds: [String],
+  qrCodes: [String]
+}, {
+  timestamps: true
+});
+
+// Add index for faster queries
+bookingSchema.index({ user: 1, event: 1 });
+bookingSchema.index({ status: 1 });
+>>>>>>> origin/main
 
 module.exports = mongoose.model('Booking', bookingSchema);

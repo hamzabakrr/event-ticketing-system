@@ -51,6 +51,7 @@ export const AuthProvider = ({ children }) => {
       navigate(intendedPath, { replace: true });
       return true;
     } catch (error) {
+<<<<<<< HEAD
       console.error('Login error:', error);
       if (error.response?.data?.message) {
         toast.error(error.response.data.message);
@@ -59,6 +60,9 @@ export const AuthProvider = ({ children }) => {
       } else {
         toast.error('Login failed. Please try again.');
       }
+=======
+      toast.error(error.response?.data?.message || 'Login failed');
+>>>>>>> origin/main
       return false;
     }
   };

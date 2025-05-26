@@ -2,16 +2,27 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+<<<<<<< HEAD
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+=======
+import ResetPassword from './components/auth/ResetPassword';
+
+// Inside your Routes component
+<Route path="/reset-password/:token" element={<ResetPassword />} />
+
+const ResetPassword = () => {
+  const [password, setPassword] = useState('');
+>>>>>>> origin/main
   const { token } = useParams();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     if (password !== confirmPassword) {
       toast.error('Passwords do not match');
       return;
@@ -31,10 +42,19 @@ const ResetPassword = () => {
       toast.error(error.response?.data?.message || 'Error resetting password');
     } finally {
       setIsLoading(false);
+=======
+    try {
+      await axios.post(`/api/auth/reset-password/${token}`, { password });
+      toast.success('Password has been reset successfully.');
+      navigate('/login');
+    } catch (error) {
+      toast.error(error.response.data.message || 'Error resetting password');
+>>>>>>> origin/main
     }
   };
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
@@ -87,6 +107,19 @@ const ResetPassword = () => {
         </form>
       </div>
     </div>
+=======
+    <form onSubmit={handleSubmit}>
+      <input
+        type="password"
+        name="password"
+        placeholder="Enter new password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <button type="submit">Reset Password</button>
+    </form>
+>>>>>>> origin/main
   );
 };
 

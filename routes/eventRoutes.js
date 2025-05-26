@@ -7,8 +7,12 @@ const {
   createEvent,
   updateEvent,
   deleteEvent,
+<<<<<<< HEAD
   getMyEvents,
   bookEvent
+=======
+  getMyEvents
+>>>>>>> origin/main
 } = require('../controllers/eventController');
 
 // Public routes
@@ -20,7 +24,10 @@ router.use(protect);
 
 // User routes
 router.get('/my/events', getMyEvents);
+<<<<<<< HEAD
 router.post('/:id/book', bookEvent);
+=======
+>>>>>>> origin/main
 
 // Organizer routes
 router.post('/', isOrganizer, createEvent);

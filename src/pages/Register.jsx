@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+<<<<<<< HEAD
 import { toast } from 'react-toastify';
+=======
+>>>>>>> origin/main
 
 const Register = () => {
   const navigate = useNavigate();
@@ -11,6 +14,7 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
+<<<<<<< HEAD
     phone: '',
     role: 'user',
     address: {
@@ -18,11 +22,15 @@ const Register = () => {
       area: 'Other',
       city: 'Cairo'
     }
+=======
+    role: 'user'
+>>>>>>> origin/main
   });
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+<<<<<<< HEAD
     if (name.startsWith('address.')) {
       const addressField = name.split('.')[1];
       setFormData(prev => ({
@@ -38,6 +46,12 @@ const Register = () => {
         [name]: value
       }));
     }
+=======
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+>>>>>>> origin/main
   };
 
   const handleSubmit = async (e) => {
@@ -47,6 +61,7 @@ const Register = () => {
       return;
     }
 
+<<<<<<< HEAD
     // Validate Egyptian phone number
     const phoneRegex = /^(\+20|0)?1[0125][0-9]{8}$/;
     if (!phoneRegex.test(formData.phone)) {
@@ -54,12 +69,15 @@ const Register = () => {
       return;
     }
 
+=======
+>>>>>>> origin/main
     setLoading(true);
     try {
       const success = await register({
         name: formData.name,
         email: formData.email,
         password: formData.password,
+<<<<<<< HEAD
         role: formData.role,
         phone: formData.phone,
         address: formData.address
@@ -69,13 +87,24 @@ const Register = () => {
       }
     } catch (error) {
       console.error('Registration error:', error);
+=======
+        role: formData.role
+      });
+      if (success) {
+        navigate('/');
+      }
+>>>>>>> origin/main
     } finally {
       setLoading(false);
     }
   };
 
   return (
+<<<<<<< HEAD
     <div className="max-w-md mx-auto mt-10 mb-10">
+=======
+    <div className="max-w-md mx-auto mt-10">
+>>>>>>> origin/main
       <div className="bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
         <form onSubmit={handleSubmit}>
@@ -108,6 +137,7 @@ const Register = () => {
             />
           </div>
           <div className="mb-4">
+<<<<<<< HEAD
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="phone">
               Phone Number (Egyptian)
             </label>
@@ -123,6 +153,8 @@ const Register = () => {
             />
           </div>
           <div className="mb-4">
+=======
+>>>>>>> origin/main
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
               Password
             </label>
@@ -150,7 +182,11 @@ const Register = () => {
               required
             />
           </div>
+<<<<<<< HEAD
           <div className="mb-4">
+=======
+          <div className="mb-6">
+>>>>>>> origin/main
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
               Role
             </label>
@@ -165,6 +201,7 @@ const Register = () => {
               <option value="organizer">Organizer</option>
             </select>
           </div>
+<<<<<<< HEAD
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="address.street">
               Street Address
@@ -199,6 +236,8 @@ const Register = () => {
               <option value="Zamalek">Zamalek</option>
             </select>
           </div>
+=======
+>>>>>>> origin/main
           <button
             type="submit"
             disabled={loading}
