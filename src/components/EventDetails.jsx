@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import api from '../api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
+import { getEventImage } from '../utils/imageUtils';
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -37,7 +38,8 @@ const EventDetails = () => {
     if (event && selectedTicketType) {
       const ticketType = event.ticketTypes.find(t => t.type === selectedTicketType);
       if (ticketType) {
-        setTotalPrice(ticketType.price * quantity);
+        const calculatedPrice = ticketType.price * quantity;
+        setTotalPrice(calculatedPrice);
       }
     }
   }, [selectedTicketType, quantity, event]);
@@ -72,11 +74,17 @@ const EventDetails = () => {
         return;
       }
 
-      await api.post('/bookings', {
+      const calculatedTotalPrice = ticketType.price * quantity;
+      if (isNaN(calculatedTotalPrice) || calculatedTotalPrice <= 0) {
+        toast.error('Invalid total price calculation');
+        return;
+      }
+
+      const response = await api.endpoints.bookings.create({
         eventId: event._id,
         ticketType: selectedTicketType,
         quantity: quantity,
-        totalPrice: totalPrice
+        totalPrice: calculatedTotalPrice
       });
 
       toast.success('Booking successful!');
@@ -99,68 +107,86 @@ const EventDetails = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-      <img 
-        src={event.image} 
-        alt={event.title} 
-        className="w-full h-96 object-cover"
-      />
-      <div className="p-6">
-        <h1 className="text-3xl font-bold mb-4">{event.title}</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <p className="text-gray-600 mb-4">{event.description}</p>
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <img
+            src={getEventImage(event.image)}
+            alt={event.title}
+            className="w-full h-64 object-cover rounded-lg shadow-lg"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = getEventImage(null);
+            }}
+          />
+          <h1 className="text-3xl font-bold mt-6 mb-4">{event.title}</h1>
+          <div className="bg-gray-100 p-4 rounded-lg mb-6">
+            <p className="text-gray-700 mb-2">
+              <span className="font-semibold">Date:</span>{' '}
+              {format(new Date(event.date), 'MMMM d, yyyy')}
+            </p>
+            <p className="text-gray-700 mb-2">
+              <span className="font-semibold">Time:</span> {event.time}
+            </p>
+            <p className="text-gray-700">
+              <span className="font-semibold">Location:</span>{' '}
+              {event.location.name}, {event.location.area}
+            </p>
+          </div>
+          <div className="prose max-w-none">
+            <h2 className="text-xl font-semibold mb-2">About This Event</h2>
+            <p className="text-gray-700">{event.description}</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold mb-6">Book Tickets</h2>
+          <form onSubmit={handleBooking}>
             <div className="mb-4">
-              <h2 className="text-xl font-semibold mb-2">Event Details</h2>
-              <p><span className="font-medium">Date:</span> {format(new Date(event.date), 'MMMM d, yyyy')}</p>
-              <p><span className="font-medium">Time:</span> {event.time}</p>
-              <p><span className="font-medium">Location:</span> {event.location.name}</p>
-              <p><span className="font-medium">Area:</span> {event.location.area}</p>
-              <p><span className="font-medium">City:</span> {event.location.city}</p>
-            </div>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Book Tickets</h2>
-            <form onSubmit={handleBooking}>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Ticket Type</label>
-                <select
-                  value={selectedTicketType}
-                  onChange={handleTicketTypeChange}
-                  className="w-full p-2 border rounded"
-                  required
-                >
-                  {event.ticketTypes.map((ticket) => (
-                    <option key={ticket.type} value={ticket.type}>
-                      {ticket.type} - {ticket.price} EGP ({ticket.available} available)
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Quantity</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={handleQuantityChange}
-                  className="w-full p-2 border rounded"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <p className="text-xl font-semibold">
-                  Total Price: {totalPrice} EGP
-                </p>
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Ticket Type
+              </label>
+              <select
+                value={selectedTicketType}
+                onChange={handleTicketTypeChange}
+                className="w-full p-2 border rounded"
+                required
               >
-                Book Now
-              </button>
-            </form>
-          </div>
+                {event.ticketTypes.map((type) => (
+                  <option key={type.type} value={type.type}>
+                    {type.type} - {type.price} EGP ({type.available} available)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Quantity
+              </label>
+              <input
+                type="number"
+                value={quantity}
+                onChange={handleQuantityChange}
+                min="1"
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+
+            <div className="mb-6">
+              <p className="text-lg font-bold">
+                Total Price: {totalPrice} EGP
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"
+            >
+              Book Now
+            </button>
+          </form>
         </div>
       </div>
     </div>

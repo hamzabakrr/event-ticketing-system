@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api';
 import { toast } from 'react-toastify';
 
@@ -15,6 +16,8 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     checkAuthStatus();
@@ -45,6 +48,10 @@ export const AuthProvider = ({ children }) => {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(userData);
       toast.success('Login successful!');
+      
+      // Navigate to the intended page or home
+      const intendedPath = location.state?.from || '/';
+      navigate(intendedPath, { replace: true });
       return true;
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed');
@@ -55,11 +62,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await api.post('/auth/register', userData);
-      const { token, user: newUser } = response.data;
-      localStorage.setItem('token', token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser(newUser);
-      toast.success('Registration successful!');
+      toast.success('Registration successful! Please login.');
+      navigate('/login');
       return true;
     } catch (error) {
       toast.error(error.response?.data?.message || 'Registration failed');
@@ -72,6 +76,7 @@ export const AuthProvider = ({ children }) => {
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
     toast.success('Logged out successfully');
+    navigate('/login');
   };
 
   const updateProfile = async (userData) => {
@@ -98,7 +103,7 @@ export const AuthProvider = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -109,4 +114,6 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-}; 
+};
+
+export default AuthContext; 

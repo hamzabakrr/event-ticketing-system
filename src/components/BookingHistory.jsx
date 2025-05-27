@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import api from '../api';
+import api from '../api/index';
 import { toast } from 'react-toastify';
+import { getEventImage } from '../utils/imageUtils';
 
 const BookingHistory = () => {
   const [bookings, setBookings] = useState([]);
@@ -13,9 +14,21 @@ const BookingHistory = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await api.get('/api/bookings');
-      setBookings(response.data);
+      const response = await api.endpoints.bookings.getMyBookings();
+      if (response?.data) {
+        // Process images for each booking's event
+        const processedBookings = await Promise.all(
+          response.data.map(async (booking) => {
+            if (booking.event?.image) {
+              booking.event.image = await getEventImage(booking.event.image);
+            }
+            return booking;
+          })
+        );
+        setBookings(processedBookings);
+      }
     } catch (error) {
+      console.error('Error fetching bookings:', error);
       toast.error('Error fetching booking history');
     } finally {
       setLoading(false);
@@ -30,7 +43,7 @@ const BookingHistory = () => {
     );
   }
 
-  if (bookings.length === 0) {
+  if (!bookings || bookings.length === 0) {
     return (
       <div className="text-center py-8">
         <h2 className="text-2xl font-bold mb-4">Booking History</h2>
@@ -51,14 +64,20 @@ const BookingHistory = () => {
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">{booking.event.title}</h3>
-                  <p className="text-gray-600">
-                    {format(new Date(booking.event.date), 'MMMM d, yyyy')} at{' '}
-                    {booking.event.time}
-                  </p>
-                  <p className="text-gray-600">
-                    {booking.event.location.name}, {booking.event.location.area}
-                  </p>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {booking.event?.title || 'Event Unavailable'}
+                  </h3>
+                  {booking.event && (
+                    <>
+                      <p className="text-gray-600">
+                        {format(new Date(booking.event.date), 'MMMM d, yyyy')}
+                      </p>
+                      <p className="text-gray-600">
+                        {booking.event.location?.name} 
+                        {booking.event.location?.area && `, ${booking.event.location.area}`}
+                      </p>
+                    </>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-500">
@@ -76,30 +95,26 @@ const BookingHistory = () => {
                 </div>
               </div>
               <div className="border-t pt-4">
-                <h4 className="font-semibold mb-2">Tickets</h4>
-                <div className="space-y-2">
-                  {booking.tickets.map((ticket, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center bg-gray-50 p-3 rounded"
-                    >
-                      <span className="font-medium">{ticket.type}</span>
-                      <div className="text-right">
-                        <span className="text-gray-600">
-                          {ticket.quantity} × {ticket.price} EGP
-                        </span>
-                        <span className="block text-sm text-gray-500">
-                          Total: {ticket.quantity * ticket.price} EGP
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex justify-between items-center bg-gray-50 p-3 rounded">
+                  <div>
+                    <h4 className="font-semibold">Quantity</h4>
+                    <p>{booking.quantity} ticket(s)</p>
+                  </div>
+                  <div className="text-right">
+                    <h4 className="font-semibold">Total Price</h4>
+                    <p>{booking.totalPrice?.toFixed(2) || 0} EGP</p>
+                  </div>
                 </div>
-                <div className="mt-4 text-right">
-                  <p className="font-semibold">
-                    Total Amount: {booking.totalAmount} EGP
-                  </p>
-                </div>
+                {booking.contactInfo && (
+                  <div className="mt-4 text-sm text-gray-600">
+                    <h4 className="font-semibold mb-2">Contact Information</h4>
+                    <p>Name: {booking.contactInfo.name}</p>
+                    <p>Email: {booking.contactInfo.email}</p>
+                    {booking.contactInfo.phone && (
+                      <p>Phone: {booking.contactInfo.phone}</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

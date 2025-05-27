@@ -3,22 +3,18 @@ const router = express.Router();
 const { protect, isOrganizer, isOrganizerOrAdmin } = require('../middleware/authMiddleware');
 const {
   getEvents,
-  getEvent,
+  getEventById,
   createEvent,
   updateEvent,
-  deleteEvent,
-  getMyEvents
+  deleteEvent
 } = require('../controllers/eventController');
 
 // Public routes
 router.get('/', getEvents);
-router.get('/:id', getEvent);
+router.get('/:id', getEventById);
 
 // Protected routes
 router.use(protect);
-
-// User routes
-router.get('/my/events', getMyEvents);
 
 // Organizer routes
 router.post('/', isOrganizer, createEvent);
